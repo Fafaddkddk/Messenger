@@ -9,8 +9,8 @@
         :root { --blue: #0088cc; --dark: #0e1621; --chat: #17212b; --header: #242f3d; --accent: #40a7e3; --white: #ffffff; }
         body.light-theme { --dark: #ffffff; --chat: #f0f2f5; --header: #ffffff; --accent: #0088cc; --white: #000000; }
         
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        html, body { height: 100%; margin: 0; padding: 0; background: var(--dark); color: var(--white); font-family: -apple-system, blinkmacsystemfont, sans-serif; overflow: hidden; transition: 0.3s; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
+        html, body { height: 100%; margin: 0; padding: 0; background: var(--dark); color: var(--white); font-family: -apple-system, blinkmacsystemfont, sans-serif; overflow: hidden; }
         
         .container { display: flex; flex-direction: column; height: 100%; width: 100%; max-width: 500px; margin: 0 auto; background: var(--chat); position: relative; }
         .screen { display: none; flex-direction: column; height: 100%; width: 100%; animation: fadeIn 0.2s; }
@@ -18,63 +18,83 @@
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
         header { background: var(--header); padding: 10px 15px; display: flex; align-items: center; height: 55px; border-bottom: 1px solid rgba(0,0,0,0.1); flex-shrink: 0; z-index: 10; }
-        .header-title { flex: 1; margin-left: 15px; font-weight: bold; font-size: 18px; color: var(--white); }
+        .header-title { flex: 1; margin-left: 15px; font-weight: bold; font-size: 17px; line-height: 1.2; }
 
+        /* CALL UI */
+        #call-ui { position: fixed; inset: 0; background: #0f1721; z-index: 9999; display: none; flex-direction: column; align-items: center; justify-content: space-between; padding: 60px 20px 40px; }
+        .call-bg { position: absolute; inset: 0; background: linear-gradient(to bottom, #1e2c3a, #0f1721); z-index: -2; }
+        #remote-video { width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0; z-index: -1; display: none; }
+        #local-video { width: 90px; height: 130px; position: absolute; top: 20px; right: 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.3); z-index: 10; object-fit: cover; display: none; }
+        .call-avatar { width: 120px; height: 120px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 50px; animation: pulse 2s infinite; overflow: hidden; }
+        .call-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0px rgba(64, 167, 227, 0.4); } 70% { box-shadow: 0 0 0 25px rgba(64, 167, 227, 0); } 100% { box-shadow: 0 0 0 0px rgba(64, 167, 227, 0); } }
+        .call-controls { display: flex; gap: 15px; z-index: 20; }
+        .call-btn { width: 60px; height: 60px; border-radius: 50%; border: none; display: flex; align-items: center; justify-content: center; font-size: 22px; cursor: pointer; color: white; background: rgba(255,255,255,0.1); }
+        .btn-hangup { background: #ff3b30; }
+        .btn-accept { background: #4cd964; }
+
+        /* REPLY BAR */
+        #reply-preview { display: none; background: var(--header); padding: 5px 15px; border-left: 3px solid var(--accent); font-size: 13px; position: relative; }
+        #reply-preview span { display: block; opacity: 0.6; }
+
+        /* MESSAGES */
         #messages { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 12px; }
-        .msg { padding: 8px 12px; border-radius: 16px; max-width: 80%; font-size: 15px; position: relative; line-height: 1.4; cursor: pointer; color: white; }
+        .msg { padding: 8px 12px; border-radius: 16px; max-width: 80%; font-size: 15px; position: relative; color: white; line-height: 1.4; transition: 0.2s; cursor: pointer; }
         .my-msg { align-self: flex-end; background: #2b5278; border-bottom-right-radius: 4px; }
         .their-msg { align-self: flex-start; background: #182533; border-bottom-left-radius: 4px; }
-        body.light-theme .their-msg { background: white; color: black; border: 1px solid #ddd; }
-        
+        .msg-info { display: flex; align-items: center; justify-content: flex-end; gap: 4px; font-size: 10px; opacity: 0.6; margin-top: 2px; }
+        .replied-text { background: rgba(0,0,0,0.2); padding: 4px 8px; border-left: 2px solid var(--accent); border-radius: 4px; font-size: 12px; margin-bottom: 5px; opacity: 0.8; }
         .reaction { position: absolute; bottom: -10px; right: 5px; background: #1e2c3a; border-radius: 10px; padding: 2px 5px; font-size: 12px; border: 1px solid rgba(255,255,255,0.1); }
 
-        .controls { background: var(--header); display: flex; padding: 10px; gap: 8px; align-items: center; padding-bottom: calc(10px + env(safe-area-inset-bottom)); }
-        input[type="text"] { flex: 1; padding: 10px 16px; border-radius: 20px; border: none; background: var(--dark); color: var(--white); outline: none; font-size: 16px; border: 1px solid rgba(128,128,128,0.2); }
+        .controls { background: var(--header); display: flex; flex-direction: column; }
+        .input-row { display: flex; padding: 10px; gap: 8px; align-items: center; }
+        input[type="text"] { flex: 1; padding: 10px 16px; border-radius: 20px; border: none; background: var(--dark); color: var(--white); font-size: 16px; }
         .btn-round { width: 40px; height: 40px; border-radius: 50%; border: none; background: var(--accent); color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; }
 
-        #call-ui { position: fixed; inset: 0; background: #1c242d; z-index: 9999; display: none; flex-direction: column; align-items: center; justify-content: space-around; padding: 50px 0; }
-        video { width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0; z-index: -1; }
-        #local-video { width: 100px; height: 150px; top: 20px; right: 20px; border-radius: 10px; border: 1px solid white; }
-
         .list-item { padding: 12px 15px; border-bottom: 1px solid rgba(0,0,0,0.05); display: flex; align-items: center; cursor: pointer; }
-        .ava-circle { width: 45px; height: 45px; border-radius: 50%; background: #2b5278; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-right: 12px; font-size: 20px; }
+        .ava-circle { width: 45px; height: 45px; border-radius: 50%; background: #2b5278; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-right: 12px; }
         .ava-circle img { width: 100%; height: 100%; object-fit: cover; }
     </style>
 </head>
-<body class="dark-theme">
+<body>
 
 <div class="container">
     <div id="call-ui">
+        <div class="call-bg"></div>
+        <audio id="call-ring" src="https://assets.mixkit.co/active_storage/sfx/1359/1359-preview.mp3" loop></audio>
         <video id="remote-video" autoplay playsinline></video>
         <video id="local-video" autoplay muted playsinline></video>
-        <div style="text-align:center; z-index: 10;">
-            <h2 id="call-name">Звонок...</h2>
-            <div id="call-status">Подключение</div>
+        <div style="text-align:center">
+            <div id="call-ava-ui" class="call-avatar" style="margin: 0 auto 20px;">👤</div>
+            <h2 id="call-name-ui">Никнейм</h2>
+            <p id="call-status">Вызов...</p>
         </div>
-        <div style="display:flex; gap:30px; z-index: 10;">
-            <button id="btn-accept" class="btn-round" style="background:#4cd964; width:70px; height:70px; font-size:30px;" onclick="answerCall()">📞</button>
-            <button class="btn-round" style="background:#ff3b30; width:70px; height:70px; font-size:30px;" onclick="endCall()">✖</button>
+        <div class="call-controls">
+            <button class="call-btn" onclick="toggleMute()" id="mute-btn">🎤</button>
+            <button class="call-btn" onclick="toggleVideo()" id="video-btn">📹</button>
+            <button id="btn-accept" class="call-btn btn-accept" onclick="answerCall()" style="display:none;">📞</button>
+            <button class="call-btn btn-hangup" onclick="endCall()">✖</button>
         </div>
     </div>
 
     <div id="auth-screen" class="screen active">
-        <header><div class="header-title">🐙 Octypi Ultra</div></header>
-        <div style="padding: 30px; display: flex; flex-direction: column; gap: 10px;">
-            <input type="text" id="reg-name" placeholder="Никнейм">
-            <input type="email" id="reg-email" placeholder="Email">
-            <input type="password" id="reg-pass" placeholder="Пароль">
-            <button onclick="handleAuth()" style="background:var(--accent); color:white; padding:15px; border:none; border-radius:10px; font-weight:bold;">ВОЙТИ / СОЗДАТЬ</button>
+        <header><div class="header-title" style="text-align:center; margin:0;">Octypi Ultra</div></header>
+        <div style="padding:40px 25px; display:flex; flex-direction:column; gap:20px;">
+            <input type="text" id="reg-name" placeholder="Твой Ник" style="width:100%; background:transparent; border:none; border-bottom:2px solid var(--accent); color:white; font-size:24px; text-align:center;">
+            <input type="email" id="reg-email" placeholder="Email" style="padding:15px; border-radius:12px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:white;">
+            <input type="password" id="reg-pass" placeholder="Пароль" style="padding:15px; border-radius:12px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:white;">
+            <button onclick="handleAuth()" style="background:var(--accent); color:white; padding:16px; border:none; border-radius:15px; font-weight:bold; cursor:pointer;">ВОЙТИ / СОЗДАТЬ</button>
         </div>
     </div>
 
     <div id="list-screen" class="screen">
         <header>
-            <div id="my-ava-header" class="ava-circle" style="width:34px; height:34px; margin:0;" onclick="switchScreen('settings-screen')">👤</div>
+            <div id="my-header-ava" class="ava-circle" style="width:34px; height:34px; margin:0;" onclick="switchScreen('settings-screen')">👤</div>
             <div class="header-title">Чаты</div>
             <button onclick="switchScreen('settings-screen')" style="background:none; border:none; color:var(--accent); font-size:20px;">⚙️</button>
         </header>
         <div style="padding: 10px; display: flex; gap: 8px; background: var(--header);">
-            <input type="text" id="search-nick" placeholder="Поиск ника...">
+            <input type="text" id="search-nick" placeholder="Поиск ника..." style="flex:1; padding:10px; border-radius:8px; border:none; background:#0e1621; color:white;">
             <button onclick="findChat()" class="btn-round">+</button>
         </div>
         <div id="chats-list" style="flex:1; overflow-y:auto;"></div>
@@ -83,34 +103,34 @@
     <div id="chat-screen" class="screen">
         <header>
             <button onclick="switchScreen('list-screen')" style="background:none; border:none; color:var(--accent); font-size:24px;">‹</button>
-            <div class="header-title" id="chat-name" style="font-size:15px;">Загрузка...</div>
+            <div class="header-title" id="chat-name">Чат</div>
             <button onclick="startCall()" style="background:none; border:none; color:var(--accent); font-size:20px;">📞</button>
         </header>
         <div id="messages"></div>
         <div class="controls">
-            <input type="file" id="photo-input" hidden onchange="sendPhoto(this)" accept="image/*">
-            <button onclick="document.getElementById('photo-input').click()" class="btn-round" style="background:#242f3d">🖼️</button>
-            <input type="text" id="msg-input" placeholder="Сообщение" oninput="handleTyping()" onkeypress="if(event.key==='Enter') send()">
-            <button id="voice-btn" class="btn-round" onclick="toggleVoice()" style="background:#2b5278">🎤</button>
-            <button onclick="send()" class="btn-round">➤</button>
+            <div id="reply-preview">
+                <span id="reply-user">Ответ</span>
+                <div id="reply-text">...</div>
+                <button onclick="cancelReply()" style="position:absolute; right:5px; top:5px; background:none; border:none; color:white;">×</button>
+            </div>
+            <div class="input-row">
+                <input type="file" id="photo-input" hidden onchange="sendPhoto(this)" accept="image/*">
+                <button onclick="document.getElementById('photo-input').click()" class="btn-round" style="background:#242f3d">🖼️</button>
+                <input type="text" id="msg-input" placeholder="Сообщение" oninput="handleTyping()" onkeypress="if(event.key==='Enter') send()">
+                <button id="voice-btn" class="btn-round" onclick="toggleVoice()" style="background:#2b5278">🎤</button>
+                <button onclick="send()" class="btn-round">➤</button>
+            </div>
         </div>
     </div>
 
     <div id="settings-screen" class="screen">
-        <header>
-            <button onclick="switchScreen('list-screen')" style="background:none; border:none; color:var(--accent); font-size:24px;">‹</button>
-            <div class="header-title">Настройки</div>
-        </header>
+        <header><button onclick="switchScreen('list-screen')" style="background:none; border:none; color:var(--accent); font-size:24px;">‹</button><div class="header-title">Профиль</div></header>
         <div style="padding: 20px; text-align: center; display: flex; flex-direction: column; gap: 15px;">
-            <div style="position: relative; width: 100px; height: 100px; margin: 0 auto;">
-                <div id="settings-ava" class="ava-circle" style="width:100px; height:100px; font-size:40px; margin:0;">👤</div>
-                <label for="ava-upload" style="position: absolute; bottom: 0; right: 0; background: var(--accent); width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 2px solid var(--header);">📷</label>
-                <input type="file" id="ava-upload" hidden onchange="updateAvatar(this)" accept="image/*">
-            </div>
-            <input type="text" id="edit-name" placeholder="Ваше имя" style="width:100%; padding:15px; border-radius:12px; background:var(--header); color:var(--white); border:1px solid rgba(128,128,128,0.2);">
+            <div id="settings-ava" class="ava-circle" style="width:100px; height:100px; font-size:40px; margin:0 auto;">👤</div>
+            <input type="file" id="ava-upload" hidden onchange="updateAvatar(this)" accept="image/*">
+            <button onclick="document.getElementById('ava-upload').click()" style="background:var(--accent); border:none; color:white; padding:8px; border-radius:8px;">Изменить фото</button>
+            <input type="text" id="edit-name" placeholder="Имя" style="padding:15px; border-radius:12px; background:var(--header); color:white; border:none;">
             <button onclick="saveProfile()" style="width:100%; background:#4cd964; color:white; border:none; padding:15px; border-radius:12px; font-weight:bold;">СОХРАНИТЬ</button>
-            <hr style="width:100%; opacity:0.1;">
-            <button onclick="toggleTheme()" style="width:100%; background:var(--accent); color:white; border:none; padding:15px; border-radius:12px; font-weight:bold;">СМЕНИТЬ ТЕМУ 🌓</button>
             <button onclick="auth.signOut(); location.reload();" style="width:100%; background:#ff3b30; color:white; border:none; padding:15px; border-radius:12px; font-weight:bold;">ВЫЙТИ</button>
         </div>
     </div>
@@ -119,31 +139,28 @@
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-    import { getDatabase, ref, set, push, onChildAdded, get, onValue, update, off, onDisconnect, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    import { getDatabase, ref, set, push, get, onValue, update, off, onDisconnect, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
     const firebaseConfig = {
-      apiKey: "AIzaSyCwLz3aRXoXlg6r9wUiMdwe648ueO9KqPg",
-      authDomain: "superchat-8df25.firebaseapp.com",
-      databaseURL: "https://superchat-8df25-default-rtdb.firebaseio.com",
-      projectId: "superchat-8df25",
-      storageBucket: "superchat-8df25.firebasestorage.app",
-      messagingSenderId: "708715247357",
-      appId: "1:708715247357:web:1621af53a5021eef22f094"
+        apiKey: "AIzaSyCwLz3aRXoXlg6r9wUiMdwe648ueO9KqPg",
+        authDomain: "superchat-8df25.firebaseapp.com",
+        databaseURL: "https://superchat-8df25-default-rtdb.firebaseio.com",
+        projectId: "superchat-8df25",
+        storageBucket: "superchat-8df25.firebasestorage.app",
+        messagingSenderId: "708715247357",
+        appId: "1:708715247357:web:1621af53a5021eef22f094"
     };
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getDatabase(app);
+    const fb = initializeApp(firebaseConfig);
+    const auth = getAuth(fb);
+    const db = getDatabase(fb);
 
     let me = null, activeChatId = null, peer = null, myStream = null, currentCall = null;
-    let isRecording = false, mediaRecorder, audioChunks = [], typingTimeout;
+    let isRecording = false, mediaRecorder, audioChunks = [], typingTimeout, isMuted = false, isVideoOff = false, replyMsg = null;
 
-    // AUTH
     window.handleAuth = async () => {
         const e = document.getElementById('reg-email').value, p = document.getElementById('reg-pass').value, n = document.getElementById('reg-name').value;
-        try { 
-            await signInWithEmailAndPassword(auth, e, p); 
-        } catch {
+        try { await signInWithEmailAndPassword(auth, e, p); } catch {
             const r = await createUserWithEmailAndPassword(auth, e, p);
             await set(ref(db, 'users/' + r.user.uid), { name: n, uid: r.user.uid, avatar: "" });
             await set(ref(db, 'usernames/' + n), r.user.uid);
@@ -154,114 +171,76 @@
         if (u) {
             const s = await get(ref(db, 'users/' + u.uid));
             me = { uid: u.uid, ...s.val() };
-            
-            peer = new Peer(me.uid);
-            peer.on('call', call => {
-                currentCall = call;
-                document.getElementById('call-ui').style.display = 'flex';
-                document.getElementById('btn-accept').style.display = 'flex';
+            if(!peer) {
+                peer = new Peer(me.uid);
+                peer.on('call', async (call) => {
+                    currentCall = call;
+                    const caller = await get(ref(db, 'users/' + call.peer));
+                    document.getElementById('call-ui').style.display = 'flex';
+                    document.getElementById('btn-accept').style.display = 'flex';
+                    document.getElementById('call-name-ui').innerText = caller.val()?.name || "Вызов";
+                    document.getElementById('call-ring').play();
+                });
+            }
+            const stRef = ref(db, 'status/' + u.uid);
+            onValue(ref(db, '.info/connected'), (snap) => {
+                if (snap.val()) { onDisconnect(stRef).set({state:'offline'}); set(stRef, {state:'online'}); }
             });
-
-            updateHeaderAva();
-            const statusRef = ref(db, 'status/' + u.uid);
-            onValue(ref(db, '.info/connected'), snap => {
-                if (snap.val()) { onDisconnect(statusRef).set({state: 'offline'}); set(statusRef, {state: 'online'}); }
-            });
-
+            if(me.avatar) document.getElementById('my-header-ava').innerHTML = `<img src="${me.avatar}">`;
             loadChats(); switchScreen('list-screen');
         }
     });
 
-    // PROFILE
-    window.updateAvatar = (input) => {
-        const reader = new FileReader();
-        reader.onload = e => {
-            me.avatar = e.target.result;
-            document.getElementById('settings-ava').innerHTML = `<img src="${me.avatar}">`;
-        };
-        reader.readAsDataURL(input.files[0]);
-    };
-
-    window.saveProfile = async () => {
-        const name = document.getElementById('edit-name').value;
-        await update(ref(db, 'users/' + me.uid), { name: name, avatar: me.avatar || "" });
-        alert("Сохранено!");
-        location.reload();
-    };
-
-    function updateHeaderAva() {
-        if(me.avatar) document.getElementById('my-ava-header').innerHTML = `<img src="${me.avatar}">`;
-    }
-
-    // CALLS
-    window.startCall = async () => {
-        const oid = activeChatId.replace(me.uid, "").replace("_", "");
-        myStream = await navigator.mediaDevices.getUserMedia({video: true, audio: true});
-        document.getElementById('local-video').srcObject = myStream;
-        document.getElementById('call-ui').style.display = 'flex';
-        document.getElementById('btn-accept').style.display = 'none';
-        const call = peer.call(oid, myStream);
-        call.on('stream', rs => document.getElementById('remote-video').srcObject = rs);
-        currentCall = call;
-    };
-
-    window.answerCall = async () => {
-        myStream = await navigator.mediaDevices.getUserMedia({video: true, audio: true});
-        document.getElementById('local-video').srcObject = myStream;
-        currentCall.answer(myStream);
-        currentCall.on('stream', rs => document.getElementById('remote-video').srcObject = rs);
-        document.getElementById('btn-accept').style.display = 'none';
-    };
-
-    window.endCall = () => location.reload();
-
-    // MESSAGES & CHATS
     window.loadChats = () => {
         onValue(ref(db, 'chats'), (snap) => {
             const list = document.getElementById('chats-list');
-            list.innerHTML = "";
+            list.innerHTML = ""; const unique = new Set();
             snap.forEach(c => {
                 if (c.key.includes(me.uid)) {
                     const oid = c.key.replace(me.uid, "").replace("_", "");
-                    get(ref(db, 'users/' + oid)).then(u => {
-                        if(!u.exists()) return;
-                        const userData = u.val();
-                        const d = document.createElement('div');
-                        d.className = 'list-item';
-                        const ava = userData.avatar ? `<img src="${userData.avatar}">` : '👤';
-                        d.innerHTML = `<div class="ava-circle">${ava}</div><span>${userData.name}</span>`;
-                        d.onclick = () => openChat(c.key, userData.name);
-                        list.appendChild(d);
-                    });
+                    if(oid && oid !== me.uid && !unique.has(oid)) {
+                        unique.add(oid);
+                        get(ref(db, 'users/' + oid)).then(u => {
+                            const d = document.createElement('div'); d.className = 'list-item';
+                            d.innerHTML = `<div class="ava-circle">${u.val()?.avatar ? `<img src="${u.val().avatar}">` : '👤'}</div><span>${u.val()?.name}</span>`;
+                            d.onclick = () => openChat(c.key, u.val().name);
+                            list.appendChild(d);
+                        });
+                    }
                 }
             });
         });
     };
 
     window.openChat = (id, name) => {
-        activeChatId = id;
-        const box = document.getElementById('messages');
-        const otherId = id.replace(me.uid, "").replace("_", "");
-        
+        activeChatId = id; const otherId = id.replace(me.uid, "").replace("_", "");
         onValue(ref(db, `status/${otherId}`), s => {
             const online = s.val()?.state === 'online';
             onValue(ref(db, `typing/${id}/${otherId}`), t => {
                 document.getElementById('chat-name').innerHTML = `${name}<br><small style="color:var(--accent)">${t.val() ? 'печатает...' : (online ? 'в сети' : 'оффлайн')}</small>`;
             });
         });
-
         off(ref(db, 'chats/' + id));
         onValue(ref(db, 'chats/' + id), snap => {
-            box.innerHTML = "";
+            const box = document.getElementById('messages'); box.innerHTML = "";
             snap.forEach(child => {
                 const m = child.val(); if(!m.sid) return;
-                const div = document.createElement('div');
-                div.className = `msg ${m.sid === me.uid ? 'my-msg' : 'their-msg'}`;
-                if(m.audio) div.innerHTML = `<audio src="${m.audio}" controls style="width:180px"></audio>`;
-                else if(m.img) div.innerHTML = `<img src="${m.img}" style="width:100%; border-radius:10px">`;
-                else div.innerText = m.txt;
-                if(m.react) div.innerHTML += `<span class="reaction">${m.react}</span>`;
-                div.onclick = () => msgAction(child.key, m.sid);
+                if(m.sid !== me.uid && !m.seen) set(ref(db, `chats/${id}/${child.key}/seen`), true);
+                const div = document.createElement('div'); div.className = `msg ${m.sid === me.uid ? 'my-msg' : 'their-msg'}`;
+                let html = m.reply ? `<div class="replied-text">${m.reply}</div>` : "";
+                if(m.img) html += `<img src="${m.img}" style="width:100%; border-radius:10px">`;
+                else if(m.audio) html += `<audio src="${m.audio}" controls style="width:180px"></audio>`;
+                else html += `<div>${m.txt}</div>`;
+                const ticks = m.sid === me.uid ? (m.seen ? '✓✓' : '✓') : '';
+                html += `<div class="msg-info"><span>${new Date(m.time || Date.now()).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span> ${ticks}</div>`;
+                if(m.react) html += `<span class="reaction">${m.react}</span>`;
+                div.innerHTML = html;
+                div.onclick = () => {
+                    const act = confirm(m.sid === me.uid ? "Удалить?" : "Ответить?");
+                    if(m.sid === me.uid && act) remove(ref(db, `chats/${id}/${child.key}`));
+                    else if(m.sid !== me.uid && act) { replyMsg = m; document.getElementById('reply-preview').style.display='block'; document.getElementById('reply-text').innerText=m.txt || "Медиа"; }
+                    else if(!act && m.sid !== me.uid) { set(ref(db, `chats/${id}/${child.key}/react`), m.react ? null : "❤️"); }
+                };
                 box.appendChild(div);
             });
             box.scrollTop = box.scrollHeight;
@@ -270,9 +249,10 @@
     };
 
     window.send = () => {
-        const i = document.getElementById('msg-input');
-        if(i.value.trim()) push(ref(db, 'chats/' + activeChatId), {sid: me.uid, txt: i.value});
-        i.value = "";
+        const i = document.getElementById('msg-input'); if(!i.value.trim()) return;
+        const msg = { sid: me.uid, txt: i.value, time: Date.now(), seen: false };
+        if(replyMsg) { msg.reply = replyMsg.txt; cancelReply(); }
+        push(ref(db, 'chats/' + activeChatId), msg); i.value = "";
     };
 
     window.handleTyping = () => {
@@ -281,57 +261,85 @@
         typingTimeout = setTimeout(() => set(ref(db, `typing/${activeChatId}/${me.uid}`), false), 2000);
     };
 
+    window.toggleVoice = async () => {
+        if (!isRecording) {
+            const s = await navigator.mediaDevices.getUserMedia({audio: true});
+            mediaRecorder = new MediaRecorder(s);
+            mediaRecorder.onstop = () => {
+                const blob = new Blob(audioChunks, {type:'audio/mp3'});
+                const r = new FileReader(); r.onload = e => push(ref(db, 'chats/' + activeChatId), {sid: me.uid, audio: e.target.result, time: Date.now(), seen: false});
+                r.readAsDataURL(blob); audioChunks = [];
+            };
+            mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+            mediaRecorder.start(); isRecording = true; document.getElementById('voice-btn').style.background = "red";
+        } else { mediaRecorder.stop(); isRecording = false; document.getElementById('voice-btn').style.background = "#2b5278"; }
+    };
+
     window.sendPhoto = (input) => {
         const reader = new FileReader();
-        reader.onload = e => push(ref(db, 'chats/' + activeChatId), {sid: me.uid, img: e.target.result});
+        reader.onload = e => push(ref(db, 'chats/' + activeChatId), {sid: me.uid, img: e.target.result, time: Date.now(), seen: false});
         reader.readAsDataURL(input.files[0]);
     };
 
-    window.toggleVoice = async () => {
-        if (!isRecording) {
-            const stream = await navigator.mediaDevices.getUserMedia({audio: true});
-            mediaRecorder = new MediaRecorder(stream);
-            mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
-            mediaRecorder.onstop = () => {
-                const blob = new Blob(audioChunks, {type:'audio/mp3'});
-                const reader = new FileReader();
-                reader.onload = e => push(ref(db, 'chats/' + activeChatId), {sid: me.uid, audio: e.target.result});
-                reader.readAsDataURL(blob); audioChunks = [];
-            };
-            mediaRecorder.start(); isRecording = true; document.getElementById('voice-btn').style.background = "red";
-        } else {
-            mediaRecorder.stop(); isRecording = false; document.getElementById('voice-btn').style.background = "#2b5278";
-        }
+    window.cancelReply = () => { replyMsg = null; document.getElementById('reply-preview').style.display = 'none'; };
+
+    window.startCall = async () => {
+        const oid = activeChatId.replace(me.uid, "").replace("_", "");
+        document.getElementById('call-ui').style.display = 'flex';
+        myStream = await navigator.mediaDevices.getUserMedia({video: true, audio: true});
+        document.getElementById('local-video').srcObject = myStream;
+        document.getElementById('local-video').style.display = 'block';
+        currentCall = peer.call(oid, myStream);
+        currentCall.on('stream', (rs) => {
+            document.getElementById('remote-video').srcObject = rs;
+            document.getElementById('remote-video').style.display = 'block';
+            document.getElementById('call-status').innerText = "В сети";
+        });
     };
 
-    window.msgAction = async (id, sid) => {
-        if(sid === me.uid) { if(confirm("Удалить?")) remove(ref(db, `chats/${activeChatId}/${id}`)); }
-        else { 
-            const rRef = ref(db, `chats/${activeChatId}/${id}/react`); 
-            const s = await get(rRef); set(rRef, s.val() ? null : "❤️"); 
-        }
+    window.answerCall = async () => {
+        document.getElementById('call-ring').pause();
+        myStream = await navigator.mediaDevices.getUserMedia({video: true, audio: true});
+        document.getElementById('local-video').srcObject = myStream;
+        document.getElementById('local-video').style.display = 'block';
+        document.getElementById('btn-accept').style.display = 'none';
+        currentCall.answer(myStream);
+        currentCall.on('stream', (rs) => {
+            document.getElementById('remote-video').srcObject = rs;
+            document.getElementById('remote-video').style.display = 'block';
+            document.getElementById('call-status').innerText = "Разговор";
+        });
     };
 
-    window.toggleTheme = () => document.body.classList.toggle('light-theme');
-    
-    window.switchScreen = id => { 
-        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); 
-        document.getElementById(id).classList.add('active'); 
-        if(id === 'settings-screen') {
-            document.getElementById('edit-name').value = me.name;
-            if(me.avatar) document.getElementById('settings-ava').innerHTML = `<img src="${me.avatar}">`;
-        }
+    window.toggleMute = () => { isMuted = !isMuted; myStream.getAudioTracks()[0].enabled = !isMuted; document.getElementById('mute-btn').innerText = isMuted ? '🔇' : '🎤'; };
+    window.toggleVideo = () => { isVideoOff = !isVideoOff; myStream.getVideoTracks()[0].enabled = !isVideoOff; document.getElementById('video-btn').innerText = isVideoOff ? '📵' : '📹'; document.getElementById('local-video').style.opacity = isVideoOff ? '0' : '1'; };
+    window.endCall = () => location.reload();
+
+    window.saveProfile = async () => {
+        await update(ref(db, 'users/' + me.uid), { name: document.getElementById('edit-name').value, avatar: me.avatar || "" });
+        location.reload();
+    };
+
+    window.updateAvatar = (input) => {
+        const reader = new FileReader();
+        reader.onload = e => { me.avatar = e.target.result; document.getElementById('settings-ava').innerHTML = `<img src="${me.avatar}">`; };
+        reader.readAsDataURL(input.files[0]);
+    };
+
+    window.switchScreen = id => {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        if(id === 'settings-screen') document.getElementById('edit-name').value = me.name;
     };
 
     window.findChat = async () => {
-        const nick = document.getElementById('search-nick').value;
-        const s = await get(ref(db, 'usernames/' + nick));
-        if(s.exists()) {
-            const oid = s.val(); const id = me.uid < oid ? me.uid+"_"+oid : oid+"_"+me.uid;
-            const u = await get(ref(db, 'users/' + oid)); openChat(id, u.val().name);
-        }
+        const n = document.getElementById('search-nick').value;
+        const s = await get(ref(db, 'usernames/' + n));
+        if (s.exists()) {
+            const oid = s.val(); const id = me.uid < oid ? me.uid + "_" + oid : oid + "_" + me.uid;
+            openChat(id, n);
+        } else alert("Ник не найден");
     };
 </script>
 </body>
-              </html>
-  
+</html>
